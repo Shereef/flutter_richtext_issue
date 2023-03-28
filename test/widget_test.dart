@@ -8,23 +8,88 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:fluuter_richtext_issue/main.dart';
-
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('find rich text with children breaks',
+      (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Material(
+          child: RichText(
+            text: const TextSpan(
+              children: [
+                TextSpan(text: 'find me please'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(find.text('find me please'), findsOneWidget);
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  testWidgets('find rich text with children work around',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Material(
+          child: RichText(
+            text: const TextSpan(
+              children: [
+                TextSpan(text: 'find me please'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(
+      find.byWidgetPredicate(
+        (Widget widget) =>
+            widget is RichText && widget.text.toPlainText() == 'find me please',
+      ),
+      findsOneWidget,
+    );
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('find rich text with no children breaks',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Material(
+          child: RichText(
+            text: const TextSpan(
+              text: 'find me please',
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(find.text('find me please'), findsOneWidget);
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('find rich text with no children work around',
+      (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Material(
+          child: RichText(
+            text: const TextSpan(
+              text: 'find me please',
+            ),
+          ),
+        ),
+      ),
+    );
+    expect(
+      find.byWidgetPredicate(
+        (Widget widget) =>
+            widget is RichText && widget.text.toPlainText() == 'find me please',
+      ),
+      findsOneWidget,
+    );
   });
 }
